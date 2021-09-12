@@ -13,8 +13,15 @@ def is_rectangle_overlap(R1, R2):
     Returns:
         [boolean]: [whether R1 and R2 overlapping]
     """
-    if (R1[0] > R2[2]) or (R1[2] < R2[0]) or (R1[3] < R2[1]) or (R1[1] > R2[3]):
+
+    # If one rectangle is on left side of other
+    if R1[0] > R2[2]+1 or R2[0] > R1[2]+1:
         return False
+
+    # If one rectangle is above other
+    if R1[1] > R2[3]+1 or R2[1] > R1[3]+1:
+        return False
+
     return True
 
 
@@ -27,6 +34,9 @@ def is_overlapping(width, height, x, y, ractangle_list):
         x ([int]): [The x-coordinate of the bottom left corner of the ractangle]
         y ([int]): [The y-coordinate of the bottom left corner of the ractangle]
         ractangle_list ([list]): [The list of tuples]
+
+    Returns:
+        [boolean]: [whether the ractangle is non-overlapping with the other ractangles]
     """
     # check if the ractangle is non-overlapping with the other ractangles
     tuple_R = (x, y, x+width, y+height)
@@ -38,7 +48,7 @@ def is_overlapping(width, height, x, y, ractangle_list):
 
 
 def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=[0], vb=[255]):
-    """create a 8-bit grayscale image with n ractangles
+    """create a 8-bit grayscale image with n non-overlapping ractangles, display the image and save it after that
 
     Args:
         M ([int]): [The intial height of the image]
@@ -77,7 +87,7 @@ def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=[0], vb=[25
             # randomly uniformly generate the x-coordinate of the bottom left corner of the ractangle
             x = int(random.uniform(1, N-width-1))
             # randomly uniformly generate the y-coordinate of the bottom left corner of the ractangle
-            y = int(random.uniform(height+1, M-1))
+            y = int(random.uniform(1, M-height-1))
 
             if(is_overlapping(width, height, x, y, ractangle_list) == False):
                 ractangle_list.append((x, y, width, height))
@@ -112,13 +122,16 @@ def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=[0], vb=[25
     # filling rectangles in the image
     for (x0, y0, w0, h0) in ractangle_list:
         for i in range(x0, x0+w0):
-            for j in range(y0, y0-h0, -1):
-                pixel_map[i, j] = cf
-        # ractangle_image.show()
+            for j in range(y0, y0+h0):
+                pixel_map[i+border, j+border] = cf
 
+    # displaying the image
     ractangle_image.show()
+
+    # saving the image after displaying
+    ractangle_image.save("ractangle.jpg")
 
 
 if __name__ == "__main__":
-    create_ractangle(M=500, N=500, border=10, n=5, w1=10,
-                     w2=100, alpha=4, orientation=[1, 2], vf=range(0, 128, 1), vb=range(128, 256, 1))
+    create_ractangle(M=500, N=500, border=10, n=25, w1=10,
+                     w2=100, alpha=2, orientation=[1, 2], vf=range(0, 128, 1), vb=range(128, 256, 1))
