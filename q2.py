@@ -13,7 +13,6 @@ def is_rectangle_overlap(R1, R2):
     Returns:
         [boolean]: [whether R1 and R2 overlapping]
     """
-    print(R1, R2)
     if (R1[0] > R2[2]) or (R1[2] < R2[0]) or (R1[3] < R2[1]) or (R1[1] > R2[3]):
         return False
     return True
@@ -38,7 +37,7 @@ def is_overlapping(width, height, x, y, ractangle_list):
     return False
 
 
-def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=0, vb=255):
+def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=[0], vb=[255]):
     """create a 8-bit grayscale image with n ractangles
 
     Args:
@@ -49,9 +48,10 @@ def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=0, vb=255):
         w1 ([int]): [Starting range of the width of the ractangles]
         w2 ([int]): [Ending range of the width of the ractangles]
         alpha ([int]): [The ratio of height and weight]
-        orientation ([int]): [The oriintation of the ractangles]
-        vf ([int]): [The value of the foreground color]
-        vb ([int]): [The value of the background color]
+        orientation ([list]): [The possible oriintation of the ractangles, 1 denotes the height and width ratio is alpha 
+                                2 denotes the width and height ratio is alpha]
+        vf ([list]): [The possible values of the foreground color]
+        vb ([list]): [The possible value of the background color]
     """
 
     # create a list of tuples that contains three quantities of the ractangles,
@@ -67,6 +67,13 @@ def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=0, vb=255):
             # randomly uniformly generate the width of the ractangle in range [w1,w2]
             width = int(random.uniform(w1, w2+1))
             height = int(width * alpha)
+
+            # choose the orientation of the ractangle
+            orientation_of_ractangle = random.choice(orientation)
+            # flip the ractangle if the orientation is 2
+            if(orientation_of_ractangle == 2):
+                width, height = height, width
+
             # randomly uniformly generate the x-coordinate of the bottom left corner of the ractangle
             x = int(random.uniform(1, N-width-1))
             # randomly uniformly generate the y-coordinate of the bottom left corner of the ractangle
@@ -82,8 +89,12 @@ def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=0, vb=255):
         M = 2*M
         N = 2*N
 
+    # choosing the forground and background color
+    cf = random.choice(vf)
+    cb = random.choice(vb)
+
     # creating the image
-    ractangle_image = Image.new('L', (N+2*border, M+2*border), vb)
+    ractangle_image = Image.new('L', (N+2*border, M+2*border), cb)
 
     # Extracting pixel map:
     pixel_map = ractangle_image.load()
@@ -91,23 +102,23 @@ def create_ractangle(M, N, border, n, w1, w2, alpha, orientation, vf=0, vb=255):
     # adding the boarder in the image
     for i in range(border):
         for j in range(N+2*border):
-            pixel_map[i, j] = vf
-            pixel_map[(M+2*border)-1-i, j] = vf
+            pixel_map[i, j] = cf
+            pixel_map[(M+2*border)-1-i, j] = cf
     for j in range(border):
         for i in range(M+2*border):
-            pixel_map[i, j] = vf
-            pixel_map[i, (N+2*border)-1-j] = vf
+            pixel_map[i, j] = cf
+            pixel_map[i, (N+2*border)-1-j] = cf
 
     # filling rectangles in the image
     for (x0, y0, w0, h0) in ractangle_list:
         for i in range(x0, x0+w0):
             for j in range(y0, y0-h0, -1):
-                pixel_map[i, j] = vf
-        ractangle_image.show()
-        
+                pixel_map[i, j] = cf
+        # ractangle_image.show()
 
-    # ractangle_image.show()
+    ractangle_image.show()
+
 
 if __name__ == "__main__":
-    create_ractangle(M=500, N=500, border=10, n=15, w1=10,
-                     w2=100, alpha=4, orientation=0)
+    create_ractangle(M=500, N=500, border=10, n=5, w1=10,
+                     w2=100, alpha=4, orientation=[1, 2], vf=range(0, 128, 1), vb=range(128, 256, 1))
