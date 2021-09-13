@@ -100,38 +100,42 @@ def create_rectangles(M, N, border, n, w1, w2, alpha, orientation, vf=[0], vb=[2
         M = 2*M
         N = 2*N
 
-    # choosing the forground and background color
-    cf = random.choice(vf)
-    cb = random.choice(vb)
+    
 
     # creating the image
-    rectangle_image = Image.new('L', (N+2*border, M+2*border), cb)
+    rectangle_image = Image.new('L', (N+2*border, M+2*border))
 
     # Extracting pixel map:
     pixel_map = rectangle_image.load()
 
-    # adding the border in the image
+    # Choosing intensity values for background pixels from vb 
+    for i in range(M+2*border):
+        for j in range(N+2*border):
+            pixel_map[i,j]=random.choice(vb)
+
+    # adding the black border in the image
     for i in range(border):
         for j in range(N+2*border):
-            pixel_map[i, j] = cf
-            pixel_map[(M+2*border)-1-i, j] = cf
+            pixel_map[i, j] = 0
+            pixel_map[(M+2*border)-1-i, j] = 0
     for j in range(border):
         for i in range(M+2*border):
-            pixel_map[i, j] = cf
-            pixel_map[i, (N+2*border)-1-j] = cf
+            pixel_map[i, j] = 0
+            pixel_map[i, (N+2*border)-1-j] = 0
 
     # filling rectangles in the image
     for (x0, y0, w0, h0) in rectangle_list:
         for i in range(x0, x0+w0):
             for j in range(y0, y0+h0):
-                pixel_map[i+border, j+border] = cf
+                pixel_map[i+border, j+border] = random.choice(vf)
 
-    # displaying the image
-    rectangle_image.show()
 
     # saving the image after displaying
     rectangle_image.save("rectangle.jpg")
 
+    # displaying the image
+    im=Image.open(r"rectangle.jpg")
+    im.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
