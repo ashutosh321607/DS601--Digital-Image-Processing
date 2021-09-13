@@ -150,11 +150,12 @@ if __name__ == "__main__":
     if args.vf != None:
         vf=args.vf
     else:
-        vf=range(0,128,1)
+        vf=[0]
     if args.vb != None:
         vb=args.vb
     else:
-        vb=range(128,256,1)
+        vb=[255]
     create_rectangles(M=args.M, N=args.N, border=args.border, n=args.n, w1=args.w1,
                      w2=args.w2, alpha=args.alpha, orientation=[1, 2], vf=vf, vb=vb)
+    print("Parameters used are as follows:\n","M",args.M,"\n","N",args.N,"\n","border",args.border,"\n","n",args.n,"\n","alpha",args.alpha,"\n","w1",args.w1,"\n","w2",args.w2,"\n","vf",vf,"\n","vb",vb)
 
