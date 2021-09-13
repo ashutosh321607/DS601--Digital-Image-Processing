@@ -1,5 +1,6 @@
 from PIL import Image
 import random
+import argparse
 
 
 def is_rectangle_overlap(R1, R2):
@@ -133,5 +134,27 @@ def create_rectangles(M, N, border, n, w1, w2, alpha, orientation, vf=[0], vb=[2
 
 
 if __name__ == "__main__":
-    create_rectangles(M=500, N=500, border=10, n=25, w1=10,
-                     w2=100, alpha=2, orientation=[1, 2], vf=range(0, 128, 1), vb=range(128, 256, 1))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--M",default=500,type=int,help='height of Image/Canvas')
+    parser.add_argument("--N",default=500,type=int,help='width of Image/Canvas')
+    parser.add_argument("--border",default=10,type=int,help='Border of Image')
+    parser.add_argument("--n",default=25,type=int,help='Number of Rectangles')
+    parser.add_argument("--w1",default=10,type=int,help='Range of width for rectangles (w1,w2)')
+    parser.add_argument("--w2",default=100,type=int,help='Range of width for rectangles (w1,w2)')
+    parser.add_argument("--alpha",default=2,type=int,help='height to width ratio')
+    parser.add_argument('--vf', nargs='+', type=int)
+    parser.add_argument('--vb', nargs='+', type=int)
+    args= parser.parse_args()
+    # create_rectangles(M=500, N=500, border=10, n=25, w1=10,
+    #                  w2=100, alpha=2, orientation=[1, 2], vf=range(0, 128, 1), vb=range(128, 256, 1))
+    if args.vf != None:
+        vf=args.vf
+    else:
+        vf=range(0,128,1)
+    if args.vb != None:
+        vb=args.vb
+    else:
+        vb=range(128,256,1)
+    create_rectangles(M=args.M, N=args.N, border=args.border, n=args.n, w1=args.w1,
+                     w2=args.w2, alpha=args.alpha, orientation=[1, 2], vf=vf, vb=vb)
+
