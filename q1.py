@@ -105,6 +105,9 @@ def paths_info(I,x1,y1,x2,y2,V,path_type):
     #At first we create a binary matrix using V
     m=len(I)
     n=len(I[0])
+
+    # We create a binary matrix I_bin having value 1 for all pixels with values from V and 0 otherwise. 
+
     I_bin=[[0 for j in range(n)] for i in range(m) ]
     visited = [[0 for j in range(n)] for i in range(m) ]
     for i in range(m):
@@ -113,6 +116,8 @@ def paths_info(I,x1,y1,x2,y2,V,path_type):
                 I_bin[i][j]=1
     
     ans=[]
+
+    # Depending upon the path needed, we call the appropriate dfs function
     if path_type==4:
         dfs_4(I_bin,(x1,y1),(x2,y2),visited,ans,[])   
     if path_type==8:
@@ -127,7 +132,7 @@ def paths_info(I,x1,y1,x2,y2,V,path_type):
     for i in range(len(ans)):
         if len(ans[i]) < min:
             min=len(ans[i])
-        Lengths.append(len(ans[i]))
+        Lengths.append(len(ans[i])-1)
     for i in range(len(ans)):
         if len(ans[i])==min:
             shortest_paths.append(ans[i])
