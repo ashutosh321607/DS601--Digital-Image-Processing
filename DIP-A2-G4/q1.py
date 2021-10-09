@@ -1,6 +1,5 @@
 from PIL import Image
 
-
 class huffmanNode:
     """The huffmanNode class is used to create a node for the huffman tree.
     """
@@ -38,7 +37,9 @@ class huffmanCoding:
         total_probability = 0
         for symbol in self.probability_matrix:
             total_probability += symbol[1]
-        return total_probability == 1
+        # delta for minor error in decimals
+        delta = 0.0001
+        return total_probability >= 1 - delta
 
     def huffman_code_helper(self, huffman_node, code, huffman_code):
         """The huffman_code_helper function is used to create the huffman
@@ -131,59 +132,53 @@ def main_encode(probability_matrix=None, message=None, image_path=None):
     Returns:
         encoded image or message, probability table
     """
-    if(probability_matrix == None or message == None):
-        im = Image.open(image_path)
-        pixel_map = im.load()
-        width, height = im.size
-        flatten_image = []
-        freq_table = {}
-        for i in range(height):
-            for j in range(width):
-                value = pixel_map[i, j]
-                flatten_image.append(value)
-                if(value not in freq_table):
-                    freq_table[value] = 1
-                else:
-                    freq_table[value] += 1
-        total_pixel = width*height
-        probability_matrix = [[k, v/total_pixel]
-                              for k, v in freq_table.items()]
+    if(message != None and probability_matrix != None):
+        huffman_coder = huffmanCoding(probability_matrix)
+        return huffman_coder.encode(message), probability_matrix
+
+    im = Image.open(image_path)
+    pixel_map = im.load()
+    width, height = im.size
+    print(width, height)
+    flatten_image = []
+    freq_table = {}
+
+    for i in range(width):
+        for j in range(height):
+            value = pixel_map[i, j]
+            flatten_image.append(value)
+            if(value not in freq_table):
+                freq_table[value] = 1
+            else:
+                freq_table[value] += 1
+    total_pixel = width*height
+    probability_matrix = [[k, v/total_pixel]
+                          for k, v in freq_table.items()]
+
     huffman_coder = huffmanCoding(probability_matrix)
     return huffman_coder.encode(flatten_image), probability_matrix
 
 
 def main_decode(probability_matrix, data_addr, image_dimention=None):
+    """main decoder function for the q1 mentioned in the assignment 
+
+    Args:
+        probability_matrix (list): list of tuples containing the character and
+                                  the probability of the character
+        data_addr (string): address of the compressed file
+        image_dimention (tuple, optional): tuple of the height and width. Defaults to None.
+    """
     with open(data_addr, 'r') as f:
         message = f.read()
     decoded_message = huffmanCoding(probability_matrix).decode(message)
-    
+    print("\nMessage after decoding")
     if(image_dimention == None):
         print(decoded_message)
     else:
-        print(len(decoded_message))
         im = Image.new('L', image_dimention)
         pixel_map = im.load()
         for i in range(image_dimention[0]):
             for j in range(image_dimention[1]):
                 pixel_map[i, j] = decoded_message[(image_dimention[1]*i)+j]
         im.show()
-        im.save("decoded.png")
-
-
-if __name__ == "__main__":
-    # probability_matrix = [(1, 0.25), (2, 0.30), (3, 0.12), (4, 0.15), (5, 0.18)]
-    # huffman_coder = huffmanCoding(probability_matrix)
-    # huffman_coding_symbols = huffman_coder.huffman_codes
-    # print(huffman_coding_symbols)
-    # message = [1, 2, 3, 4, 5]
-
-    # huffman_encoded = huffman_coder.encode(message)
-    # print(huffman_encoded)
-
-    # huffman_decoded = huffman_coder.decode(huffman_encoded)
-    # print(huffman_decoded)
-    image_path = r"8-bit-256-x-256-Grayscale-Image.png"
-    encoded_image, probability_matrix = main_encode(image_path=image_path)
-    with open(f"compressed.bin", "w") as f:
-        f.write(encoded_image)
-    main_decode(probability_matrix, f"compressed.bin", (256, 256))
+        im.save("decoded.png", "PNG")
