@@ -1,4 +1,6 @@
-from PIL import Image
+from PIL import Image, ImageOps
+import heapq
+
 
 class huffmanNode:
     """The huffmanNode class is used to create a node for the huffman tree.
@@ -9,6 +11,9 @@ class huffmanNode:
         self.freq = freq
         self.left = None
         self.right = None
+
+    def __lt__(self, other):
+        return self.freq <= other.freq
 
 
 class huffmanCoding:
@@ -38,7 +43,7 @@ class huffmanCoding:
         for symbol in self.probability_matrix:
             total_probability += symbol[1]
         # delta for minor error in decimals
-        delta = 0.0001
+        delta = 0.000001
         return total_probability >= 1 - delta
 
     def huffman_code_helper(self, huffman_node, code, huffman_code):
@@ -62,33 +67,34 @@ class huffmanCoding:
         """The huffman_coding function is used to create the huffman tree
         and the huffman code for each character.
         """
-        # Create a list of huffman nodes
+        # Create a heap of huffman nodes
         huffman_nodes = []
         for i in range(len(self.probability_matrix)):
-            huffman_nodes.append(huffmanNode(self.probability_matrix[i][0],
-                                             self.probability_matrix[i][1]))
+            heapq.heappush(
+                huffman_nodes,
+                huffmanNode(
+                    self.probability_matrix[i][0], self.probability_matrix[i][1])
+            )
 
         # Create a list of huffman nodes
         while len(huffman_nodes) > 1:
-            # Sort the huffman nodes based on the frequency
-            huffman_nodes.sort(key=lambda x: x.freq)
+            # Remove the two lowest frequency nodes
+            first = heapq.heappop(huffman_nodes)
+            second = heapq.heappop(huffman_nodes)
 
             # Create a new huffman node with the two lowest frequency nodes
-            new_huffman_node = huffmanNode(None, huffman_nodes[0].freq +
-                                           huffman_nodes[1].freq)
-            new_huffman_node.left = huffman_nodes[0]
-            new_huffman_node.right = huffman_nodes[1]
-
-            # Remove the two lowest frequency nodes
-            huffman_nodes.pop(0)
-            huffman_nodes.pop(0)
+            new_huffman_node = huffmanNode(None, first.freq +
+                                           second.freq)
+            new_huffman_node.left = first
+            new_huffman_node.right = second
 
             # Add the new huffman node to the list
-            huffman_nodes.append(new_huffman_node)
+            heapq.heappush(huffman_nodes, new_huffman_node)
 
         # Create a dictionary to store the huffman code for each character
         huffman_code = {}
-        self.huffman_code_helper(huffman_nodes[0], "", huffman_code)
+        huffman_node = heapq.heappop(huffman_nodes)
+        self.huffman_code_helper(huffman_node, "", huffman_code)
 
         return huffman_code
 
@@ -136,7 +142,9 @@ def main_encode(probability_matrix=None, message=None, image_path=None):
         huffman_coder = huffmanCoding(probability_matrix)
         return huffman_coder.encode(message), probability_matrix
 
-    im = Image.open(image_path)
+    og_image = Image.open(image_path)
+    # applying grayscale method
+    im = ImageOps.grayscale(og_image)
     pixel_map = im.load()
     width, height = im.size
     print(width, height)
@@ -152,7 +160,7 @@ def main_encode(probability_matrix=None, message=None, image_path=None):
             else:
                 freq_table[value] += 1
     total_pixel = width*height
-    probability_matrix = [[k, v/total_pixel]
+    probability_matrix = [(k, v/total_pixel)
                           for k, v in freq_table.items()]
 
     huffman_coder = huffmanCoding(probability_matrix)
