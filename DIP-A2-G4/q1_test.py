@@ -24,11 +24,11 @@ print("\nMessage After Encoded based on the above symbol table")
 print(encoded_message)
 
 # saving message in a binary file
-with open("compressed_message.bin", "w") as f:
+with open("q1_compressed_message.bin", "w") as f:
     f.write(encoded_message)
 
 # decoding
-main_decode(probability_matrix, r"compressed_message.bin")
+main_decode(probability_matrix, r"q1_compressed_message.bin")
 
 
 print("\nCase2:\n")
@@ -36,7 +36,7 @@ print("\nCase2:\n")
 
 print("Input")
 print("A 8-bit grayscale image\n")
-image_path = r"B2DBy.jpg"
+image_path = r"q1_image.jpg"
 Image.open(image_path).show()
 
 #encoding
@@ -50,7 +50,7 @@ huffman_coding_symbols = huffmanCoding(probability_matrix).huffman_codes
 for k,v in huffman_coding_symbols.items():
     print(f"{str(k).ljust(3)}: {v}")
 
-with open(f"compressed.bin", "w") as f:
+with open(f"q1_compressed_image.bin", "w") as f:
     f.write(encoded_image)
     
-main_decode(probability_matrix, f"compressed.bin", (332, 300))
+main_decode(probability_matrix, f"q1_compressed_image.bin", (332, 300))

@@ -189,4 +189,4 @@ def main_decode(probability_matrix, data_addr, image_dimention=None):
             for j in range(image_dimention[1]):
                 pixel_map[i, j] = decoded_message[(image_dimention[1]*i)+j]
         im.show()
-        im.save("decoded.png", "PNG")
+        im.save("q1_decoded_image.png", "PNG")
